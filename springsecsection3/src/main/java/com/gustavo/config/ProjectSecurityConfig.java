@@ -58,13 +58,13 @@ public class ProjectSecurityConfig {
 	*/
 	
 	// Sempre que é adicionada dependências relacionadas ao MySQL e definidas as propriedades 
-	// de banco de dados no application.properties, o SPring Bot criará automaticamente um
+	// de banco de dados no application.properties, o Spring Bot criará automaticamente um
 	// objeto DataSource que contem todos esses detalhes. 
 	// JdbcUserDetailsManager usa o banco de dados para armazenar e recuperar as informações do usuário (CRUD).	
-	@Bean
+	/*@Bean
 	public UserDetailsService userDetailsService(DataSource dataSource) {
 		return new JdbcUserDetailsManager(dataSource);
-	}
+	}*/
 	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
