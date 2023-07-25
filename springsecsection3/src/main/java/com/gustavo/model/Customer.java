@@ -1,5 +1,7 @@
 package com.gustavo.model;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,7 +11,9 @@ import jakarta.persistence.Id;
 public class Customer {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO,generator="native")
+	// Dá ao banco de dados a responsabilidade de gerar um novo número na sequência
+	@GenericGenerator(name = "native",strategy="native")
 	private int id;
 	private String email;
 	private String pwd;
