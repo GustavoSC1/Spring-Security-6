@@ -5,11 +5,11 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.gustavo.model.Customer;
+import com.gustavo.model.Cards;
 
 @Repository
-public interface CustomerRepository extends CrudRepository<Customer, Long> {
+public interface CardsRepository extends CrudRepository<Cards, Long> {
+	
+	List<Cards> findByCustomerId(int customerId);
 
-    List<Customer> findByEmail(String email);
-    
 }
