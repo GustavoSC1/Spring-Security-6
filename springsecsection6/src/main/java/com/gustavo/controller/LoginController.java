@@ -1,5 +1,6 @@
 package com.gustavo.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +33,8 @@ public class LoginController {
         try {
             String hashPwd = passwordEncoder.encode(customer.getPwd());
             customer.setPwd(hashPwd);
-            customer.setCreateDt(String.valueOf(new Date(System.currentTimeMillis())));
+            customer.setCreateDt(String.valueOf(new SimpleDateFormat("yyyy-MM-dd")
+                    .format(new Date(System.currentTimeMillis()))));
             savedCustomer = customerRepository.save(customer);
             if (savedCustomer.getId() > 0) {
                 response = ResponseEntity
