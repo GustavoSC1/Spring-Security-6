@@ -5,11 +5,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+
+import com.gustavo.filter.CsrfCookieFilter;
 
 import java.util.Collections;
 
@@ -18,7 +24,20 @@ public class ProjectSecurityConfig {
 	
 	@Bean
 	SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-		http.cors().configurationSource(new CorsConfigurationSource() {
+		// Disponibiliza o CsrfToken para a aplicação front-end como um atributo da request.
+		// Essa implementação também resolve (aceita e valida) o valor do token da solicitação como um cabeçalho de solicitação
+		// ou um parâmetro de solicitação (_csrf por padrão).
+		CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+		// define o nome do atributo em que o CsrfToken será preenchido
+		requestHandler.setCsrfRequestAttributeName("_csrf");
+		
+		http
+			// SecurityContext - é obtido do SecurityContextHolder e contém a Autenticação do usuário autenticado no momento.			
+			.securityContext((securityContext) -> securityContext.requireExplicitSave(false))
+			// Uma sessão sempre será criada se ainda não existir.
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))	
+			
+			.cors().configurationSource(new CorsConfigurationSource() {
 				@Override
 				public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 					CorsConfiguration config = new CorsConfiguration();
@@ -36,7 +55,14 @@ public class ProjectSecurityConfig {
 				}
 			})	
 			.and()
-			.csrf(csrf -> csrf.ignoringRequestMatchers("/contact","/register"))
+			.csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/contact","/register")
+			// É responsável por persistir o token CSRF em um cookie com nome XSRF-TOKEN para o front-end. 
+			// Como o "HttpOnly" foi definido como falso, o front-end poderá recuperar esse cookie usando JavaScript.					
+				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+			// Execute CsrfCookieFilter após BasicAuthenticationFilter
+			// BasicAuthenticationFilter é um filtro do Spring Security que é executado quando usamos a Autenticação Básica HTTP
+			// Filtro responsável por enviar o cookie e o valor do cabeçalho para o front-end após o login inicial.
+			.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
 			.authorizeHttpRequests((requests) -> requests				
 			.requestMatchers("/myAccount","/myBalance","/myLoans","/myCards", "/user").authenticated()
 			.requestMatchers("/notices","/contact","/register").permitAll())
