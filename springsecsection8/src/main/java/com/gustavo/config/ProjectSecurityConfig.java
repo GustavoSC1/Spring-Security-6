@@ -15,6 +15,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.gustavo.filter.AuthoritiesLoggingAfterFilter;
 import com.gustavo.filter.CsrfCookieFilter;
 import com.gustavo.filter.RequestValidationBeforeFilter;
 
@@ -70,6 +71,7 @@ public class ProjectSecurityConfig {
 			// Filtro responsável por enviar o cookie e o valor do cabeçalho para o front-end após o login inicial.
 			.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
 			.addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
+			.addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
 			.authorizeHttpRequests((requests) -> requests		
 				.requestMatchers("/myAccount").hasRole("USER")
 				.requestMatchers("/myBalance").hasAnyRole("USER", "ADMIN")
