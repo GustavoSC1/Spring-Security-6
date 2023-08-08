@@ -19,6 +19,7 @@ import com.gustavo.filter.AuthoritiesLoggingAfterFilter;
 import com.gustavo.filter.AuthoritiesLoggingAtFilter;
 import com.gustavo.filter.CsrfCookieFilter;
 import com.gustavo.filter.JWTTokenGeneratorFilter;
+import com.gustavo.filter.JWTTokenValidatorFilter;
 import com.gustavo.filter.RequestValidationBeforeFilter;
 
 import java.util.Arrays;
@@ -71,6 +72,7 @@ public class ProjectSecurityConfig {
 			.addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
 			.addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
 			.addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
+			.addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
 			.authorizeHttpRequests((requests) -> requests		
 				.requestMatchers("/myAccount").hasRole("USER")
 				.requestMatchers("/myBalance").hasAnyRole("USER", "ADMIN")
