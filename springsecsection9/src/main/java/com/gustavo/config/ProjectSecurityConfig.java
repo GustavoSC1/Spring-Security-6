@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import com.gustavo.filter.AuthoritiesLoggingAfterFilter;
 import com.gustavo.filter.AuthoritiesLoggingAtFilter;
 import com.gustavo.filter.CsrfCookieFilter;
+import com.gustavo.filter.JWTTokenGeneratorFilter;
 import com.gustavo.filter.RequestValidationBeforeFilter;
 
 import java.util.Arrays;
@@ -51,7 +52,7 @@ public class ProjectSecurityConfig {
 					// Defina a lista de cabeçalhos que serão aceitos
 					config.setAllowedHeaders(Collections.singletonList("*"));
 					// Defina a lista de cabeçalhos expostos
-					config.setExposedHeaders(Arrays.asList("Authorization"))
+					config.setExposedHeaders(Arrays.asList("Authorization"));
 					// Define por quando tempo o navegador pode se lembrar(em cache) dessas configuraçãoes (em segundos)
 					config.setMaxAge(3600L);
 					return config;
@@ -69,6 +70,7 @@ public class ProjectSecurityConfig {
 			.addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
 			.addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
 			.addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
+			.addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
 			.authorizeHttpRequests((requests) -> requests		
 				.requestMatchers("/myAccount").hasRole("USER")
 				.requestMatchers("/myBalance").hasAnyRole("USER", "ADMIN")
